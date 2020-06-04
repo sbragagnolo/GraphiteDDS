@@ -4,6 +4,7 @@ Trait {
 		'deltaArcPublication',
 		'deltaNodePublication',
 		'name',
+		'version',
 		'graph',
 		'nodeDeltaBatches',
 		'arcDeltaBatches'
@@ -25,15 +26,11 @@ GTEPublicGraphTrait >> addNode: aNode [
 
 { #category : #accessing }
 GTEPublicGraphTrait >> deltaArcPublication: aPublication [
-	aPublication
-		welcomeMessage: [ :graphDeltaArray | self fillUpArcWelcomeMessage:  graphDeltaArray ].
 	deltaArcPublication:= aPublication 
 ]
 
 { #category : #accessing }
 GTEPublicGraphTrait >> deltaNodePublication: aPublication [
-	aPublication
-		welcomeMessage: [ :graphDeltaArray | self fillUpNodeWelcomeMessage:  graphDeltaArray ].
 	deltaNodePublication:= aPublication 
 ]
 
@@ -41,7 +38,7 @@ GTEPublicGraphTrait >> deltaNodePublication: aPublication [
 GTEPublicGraphTrait >> fillUpArcWelcomeMessage: graphDeltaArray [
 	graphDeltaArray
 		deltas:
-			((GTEDeltaIntrospector new calculateArcOperationsForCreating: graph)
+			((GTEDeltaIntrospector new calculateArcOperationsForCreating: self )
 				collect: [ :delta | self transformToDDSType: delta ])
 ]
 
@@ -49,40 +46,54 @@ GTEPublicGraphTrait >> fillUpArcWelcomeMessage: graphDeltaArray [
 GTEPublicGraphTrait >> fillUpNodeWelcomeMessage: graphDeltaArray [
 	graphDeltaArray
 		deltas:
-			((GTEDeltaIntrospector new calculateNodeOperationsForCreating: graph)
+			((GTEDeltaIntrospector new calculateNodeOperationsForCreating: self )
 				collect: [ :delta | self transformToDDSType: delta ]) 
-]
-
-{ #category : #convenience }
-GTEPublicGraphTrait >> fillUpWelcomeMessage: graphDeltaArray [
-	graphDeltaArray
-		deltas:
-			((GTEDeltaIntrospector new calculateOperationsForCreating: graph)
-				collect: [ :delta | self transformToDDSType: delta ])
 ]
 
 { #category : #accessing }
 GTEPublicGraphTrait >> initializeTrait [
 	nodeDeltaBatches := OrderedCollection new .
 	arcDeltaBatches :=  OrderedCollection new.
+	version := 0 .
 ]
 
 { #category : #accessing }
-GTEPublicGraphTrait >> publication: aPublication [
-	aPublication
-		welcomeMessage: [ :graphDeltaArray | self fillUpWelcomeMessage: graphDeltaArray ]
+GTEPublicGraphTrait >> name [
+	^ name
+]
+
+{ #category : #accessing }
+GTEPublicGraphTrait >> name: aName [
+	name := aName
 ]
 
 { #category : #registering }
 GTEPublicGraphTrait >> publish [
-	| nodesToPublish arcsToPublish | 
+	| nodesToPublish arcsToPublish deltas | 
+
 	nodesToPublish := nodeDeltaBatches copy.
 	nodeDeltaBatches removeAll: nodesToPublish.
 	arcsToPublish := arcDeltaBatches copy.
 	arcDeltaBatches removeAll: arcsToPublish.
 
-	deltaArcPublication publish: [ : v | v deltas: ( nodeDeltaBatches collect: [ :delta | self transformToDDSType: delta ])].	
-	deltaNodePublication publish: [ : v | v deltas: (nodesToPublish collect: [ :delta | self transformToDDSType: delta ]) ].
+	deltaArcPublication 
+		publishForAcquitances: [ : v |  
+			deltas := arcsToPublish collect: [ :delta | self transformToDDSType: delta ].
+			v version: version. 
+			v deltas: deltas
+		] forNewArrivals: [ : v | 
+			self fillUpArcWelcomeMessage: v.
+		] .	
+	deltaNodePublication 
+		publishForAcquitances: [ : v | 
+			deltas := (nodesToPublish collect: [ :delta | self transformToDDSType: delta ]).
+			v version: version.  
+			v deltas: deltas  
+		] forNewArrivals: [ : v | 
+			self fillUpNodeWelcomeMessage: v.
+		] .
+	 
+	version := version + 1 .
 	
 
 ]
@@ -97,12 +108,12 @@ GTEPublicGraphTrait >> registerAddArc: anArc [
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerAddNode: aRef [
+GTEPublicGraphTrait >> registerAddNode: aNode [
 	self
 		registerNodeDeltaBatches:
 			{(GTEAddNode new
-				node: (aRef readValueFrom: self);
-				reference: aRef;
+				node: aNode;
+				reference: (self referenceTo: aNode);
 				yourself)}
 ]
 

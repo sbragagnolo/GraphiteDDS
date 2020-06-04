@@ -14,15 +14,15 @@ GTEApplication >> arcDeltaArrayType [
 	^ MDDSTypeDefinition
 		named: 'GraphArcDeltaBatch'
 		defined:
-			{
-			(MDDSFieldDefinition
-				name: #time type: (MDDSBasicTypeDefinition for: MDDSTimeType new)).
+			{(MDDSFieldDefinition
+				name: #version
+				type: (MDDSBasicTypeDefinition for: MDDSUInt64Type new)).
 			(MDDSFieldDefinition
 				name: #deltas
-				type: (MDDSCollectionTypeDefinition
+				type:
+					(MDDSCollectionTypeDefinition
 						for: MDDSArrayType new
-						storing: self arcDeltaType))}.
-						 
+						storing: self arcDeltaType))}
 ]
 
 { #category : #'instance creation' }
@@ -50,19 +50,18 @@ GTEApplication >> initialize [
 ]
 
 { #category : #'instance creation' }
-GTEApplication >> newSharedGraph: anInternalGraph named: aGraphName [ 
+GTEApplication >> newPublicGraphNamed: aGraphName [ 
 	| graph  nodesTopic arcsTopic |
 	 
 	nodesTopic := domain
-		findOrRegisterTopicByName: ('/{1}/{2}/dnodes' format: {participant name asString . aGraphName})
+		findOrRegisterTopicByName: ('{1}/{2}/dnodes' format: {participant name asString . aGraphName})
 		type: 'GraphNodeDeltaBatch'.
 	
 	arcsTopic := domain
-		findOrRegisterTopicByName: ('/{1}/{2}/darcs' format: {participant name asString . aGraphName})
+		findOrRegisterTopicByName: ('{1}/{2}/darcs' format: {participant name asString . aGraphName})
 		type: 'GraphArcDeltaBatch'.
 
 	graph := GTEPublicGraph new.
-	graph graph: anInternalGraph.
 	graph name: aGraphName. 
 	graph deltaNodePublication:  (nodesTopic publisher publishing: participant).
 	graph deltaArcPublication:  (arcsTopic publisher publishing: participant).
@@ -75,16 +74,15 @@ GTEApplication >> nodeDeltaArrayType [
 	^ MDDSTypeDefinition
 		named: 'GraphNodeDeltaBatch'
 		defined:
-			{
-			(MDDSFieldDefinition
-				name: #time type: (MDDSBasicTypeDefinition for: MDDSTimeType new)).
+			{(MDDSFieldDefinition
+				name: #version
+				type: (MDDSBasicTypeDefinition for: MDDSUInt64Type new)).
 			(MDDSFieldDefinition
 				name: #deltas
-				type: (MDDSCollectionTypeDefinition
+				type:
+					(MDDSCollectionTypeDefinition
 						for: MDDSArrayType new
-						storing: self nodeDeltaType))}.
-						 
-					
+						storing: self nodeDeltaType))}
 ]
 
 { #category : #'instance creation' }
@@ -101,6 +99,16 @@ GTEApplication >> nodeDeltaType [
 				MDDSFieldDefinition name: #operation type: (MDDSBasicTypeDefinition for: MDDSInt8Type new) .
 				MDDSFieldDefinition name: #node type: nodeType .
 			}).
+]
+
+{ #category : #'instance creation' }
+GTEApplication >> onFailure: anError [
+	self halt.
+]
+
+{ #category : #'instance creation' }
+GTEApplication >> onRead: aValue [
+	self halt.
 ]
 
 { #category : #'instance creation' }
@@ -132,4 +140,26 @@ GTEApplication >> stop [
 	domain := nil.
 	participant := nil.
 	started := false
+]
+
+{ #category : #'instance creation' }
+GTEApplication >> subscriptions [
+	| nodesTopic arcsTopic |
+	 
+	nodesTopic := domain
+		findOrRegisterTopicByName: ('/PublicGraph/Example/dnodes')
+		type: 'GraphNodeDeltaBatch'.
+	
+	arcsTopic := domain
+		findOrRegisterTopicByName: ('PublicGraph/Example/darcs')
+		type: 'GraphArcDeltaBatch'.
+
+	nodesTopic subscriber
+		forParticipant: participant
+		onRead: [ :value | self onRead: value ]
+		onFailure: [ :err | self onFailure: err ].
+	arcsTopic subscriber
+		forParticipant: participant
+		onRead: [ :value | self onRead: value ]
+		onFailure: [ :err | self onFailure: err ]
 ]
