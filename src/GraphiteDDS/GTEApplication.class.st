@@ -62,7 +62,7 @@ GTEApplication >> newCopyGraphNamed: aGraphName [
 		type: 'GraphArcDeltaBatch'.
 
 
-	graph := GTERemoteGraph new.
+	graph := GTEOnlineGraph new.
 	graph name: aGraphName. 
 	graph nodeSubscription: (
 	nodesTopic subscriber
@@ -136,12 +136,7 @@ GTEApplication >> nodeDeltaType [
 { #category : #'instance creation' }
 GTEApplication >> onFailure: anError [
 	self traceCr: 'Error: ', anError messageText.
-	self halt .
-]
-
-{ #category : #'instance creation' }
-GTEApplication >> onRead: aValue [
-	self halt.
+	self error: 'Shall we care?' .
 ]
 
 { #category : #'instance creation' }
@@ -173,26 +168,4 @@ GTEApplication >> stop [
 	domain := nil.
 	participant := nil.
 	started := false
-]
-
-{ #category : #'instance creation' }
-GTEApplication >> subscriptions [
-	| nodesTopic arcsTopic |
-	 
-	nodesTopic := domain
-		findOrRegisterTopicByName: ('/PublicGraph/Example/dnodes')
-		type: 'GraphNodeDeltaBatch'.
-	
-	arcsTopic := domain
-		findOrRegisterTopicByName: ('PublicGraph/Example/darcs')
-		type: 'GraphArcDeltaBatch'.
-
-	nodesTopic subscriber
-		forParticipant: participant
-		onRead: [ :value | self onRead: value ]
-		onFailure: [ :err | self onFailure: err ].
-	arcsTopic subscriber
-		forParticipant: participant
-		onRead: [ :value | self onRead: value ]
-		onFailure: [ :err | self onFailure: err ]
 ]

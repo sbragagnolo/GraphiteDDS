@@ -1,5 +1,5 @@
 Trait {
-	#name : #GTECopyGraphTrait,
+	#name : #GTEOnlineGraphTrait,
 	#instVars : [
 		'subscriptions',
 		'name',
@@ -11,7 +11,7 @@ Trait {
 }
 
 { #category : #accessing }
-GTECopyGraphTrait >> arcSubscription: aSubscription [
+GTEOnlineGraphTrait >> arcSubscription: aSubscription [
 	aSubscription onRead: [ : val | self registerArcs: val ].
 	
 	arcSubscription := aSubscription. 
@@ -19,7 +19,7 @@ GTECopyGraphTrait >> arcSubscription: aSubscription [
 ]
 
 { #category : #accessing }
-GTECopyGraphTrait >> nodeSubscription: aSubscription [
+GTEOnlineGraphTrait >> nodeSubscription: aSubscription [
 	aSubscription onRead: [ : val | self registerNodes: val ].
 	
 	nodeSubscription := aSubscription. 
@@ -27,11 +27,11 @@ GTECopyGraphTrait >> nodeSubscription: aSubscription [
 ]
 
 { #category : #accessing }
-GTECopyGraphTrait >> registerArcs: aVal [
-	self halt 
+GTEOnlineGraphTrait >> registerArcs: aVal [
+	self shouldBeImplemented 
 ]
 
 { #category : #accessing }
-GTECopyGraphTrait >> registerNodes: val [
-	self halt
+GTEOnlineGraphTrait >> registerNodes: val [
+	self shouldBeImplemented 
 ]
