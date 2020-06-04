@@ -1,11 +1,10 @@
 Trait {
-	#name : #GTEPublicGraphTrait,
+	#name : #GTEPublishingGraphTrait,
 	#instVars : [
 		'deltaArcPublication',
 		'deltaNodePublication',
 		'name',
 		'version',
-		'graph',
 		'nodeDeltaBatches',
 		'arcDeltaBatches'
 	],
@@ -13,29 +12,29 @@ Trait {
 }
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> addArc: aGTEArc [
+GTEPublishingGraphTrait >> addArc: aGTEArc [
 	super addArc: aGTEArc.
 	self registerAddArc: aGTEArc
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> addNode: aNode [
+GTEPublishingGraphTrait >> addNode: aNode [
 	super addNode: aNode.
 	self registerAddNode: aNode
 ]
 
 { #category : #accessing }
-GTEPublicGraphTrait >> deltaArcPublication: aPublication [
+GTEPublishingGraphTrait >> deltaArcPublication: aPublication [
 	deltaArcPublication:= aPublication 
 ]
 
 { #category : #accessing }
-GTEPublicGraphTrait >> deltaNodePublication: aPublication [
+GTEPublishingGraphTrait >> deltaNodePublication: aPublication [
 	deltaNodePublication:= aPublication 
 ]
 
 { #category : #convenience }
-GTEPublicGraphTrait >> fillUpArcWelcomeMessage: graphDeltaArray [
+GTEPublishingGraphTrait >> fillUpArcWelcomeMessage: graphDeltaArray [
 	graphDeltaArray
 		deltas:
 			((GTEDeltaIntrospector new calculateArcOperationsForCreating: self )
@@ -43,7 +42,7 @@ GTEPublicGraphTrait >> fillUpArcWelcomeMessage: graphDeltaArray [
 ]
 
 { #category : #convenience }
-GTEPublicGraphTrait >> fillUpNodeWelcomeMessage: graphDeltaArray [
+GTEPublishingGraphTrait >> fillUpNodeWelcomeMessage: graphDeltaArray [
 	graphDeltaArray
 		deltas:
 			((GTEDeltaIntrospector new calculateNodeOperationsForCreating: self )
@@ -51,24 +50,24 @@ GTEPublicGraphTrait >> fillUpNodeWelcomeMessage: graphDeltaArray [
 ]
 
 { #category : #accessing }
-GTEPublicGraphTrait >> initializeTrait [
+GTEPublishingGraphTrait >> initializeTrait [
 	nodeDeltaBatches := OrderedCollection new .
 	arcDeltaBatches :=  OrderedCollection new.
 	version := 0 .
 ]
 
 { #category : #accessing }
-GTEPublicGraphTrait >> name [
+GTEPublishingGraphTrait >> name [
 	^ name
 ]
 
 { #category : #accessing }
-GTEPublicGraphTrait >> name: aName [
+GTEPublishingGraphTrait >> name: aName [
 	name := aName
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> publish [
+GTEPublishingGraphTrait >> publish [
 	| nodesToPublish arcsToPublish deltas | 
 
 	nodesToPublish := nodeDeltaBatches copy.
@@ -99,7 +98,7 @@ GTEPublicGraphTrait >> publish [
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerAddArc: anArc [
+GTEPublishingGraphTrait >> registerAddArc: anArc [
 	self
 		registerArcDeltaBatches:
 			{(GTEAddArc new
@@ -108,7 +107,7 @@ GTEPublicGraphTrait >> registerAddArc: anArc [
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerAddNode: aNode [
+GTEPublishingGraphTrait >> registerAddNode: aNode [
 	self
 		registerNodeDeltaBatches:
 			{(GTEAddNode new
@@ -118,17 +117,17 @@ GTEPublicGraphTrait >> registerAddNode: aNode [
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerArcDeltaBatches: aCollection [
+GTEPublishingGraphTrait >> registerArcDeltaBatches: aCollection [
 	arcDeltaBatches addAll: aCollection
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerNodeDeltaBatches: aCollection [
+GTEPublishingGraphTrait >> registerNodeDeltaBatches: aCollection [
 	nodeDeltaBatches addAll: aCollection
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerRemoveArc: anArc [
+GTEPublishingGraphTrait >> registerRemoveArc: anArc [
 	self
 		registerArcDeltaBatches:
 			{(GTERemoveArc new
@@ -137,12 +136,12 @@ GTEPublicGraphTrait >> registerRemoveArc: anArc [
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> registerRemoveArcsRelatedWith: aNodeRef [
+GTEPublishingGraphTrait >> registerRemoveArcsRelatedWith: aNodeRef [
 	self shouldBeImplemented 
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerRemoveManyNodes: aCollection [
+GTEPublishingGraphTrait >> registerRemoveManyNodes: aCollection [
 	self
 		registerNodeDeltaBatches:
 			(aCollection
@@ -154,7 +153,7 @@ GTEPublicGraphTrait >> registerRemoveManyNodes: aCollection [
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> registerRemoveNode: aRef [
+GTEPublishingGraphTrait >> registerRemoveNode: aRef [
 	self
 		registerNodeDeltaBatches:
 			{(GTERemoveNode new
@@ -164,31 +163,31 @@ GTEPublicGraphTrait >> registerRemoveNode: aRef [
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> removeAllNodes: aCollection [
+GTEPublishingGraphTrait >> removeAllNodes: aCollection [
 	self registerRemoveManyNodes: aCollection.
 	super removeAllNodes: aCollection
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> removeArc: anArc [
+GTEPublishingGraphTrait >> removeArc: anArc [
 	self registerRemoveArc: anArc.
 	super removeArc: anArc
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> removeArcsRelatedWith: anObject [
+GTEPublishingGraphTrait >> removeArcsRelatedWith: anObject [
 	self registerRemoveArcsRelatedWith: anObject.
 	^ super removeArcsRelatedWith: anObject
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraphTrait >> removeNode: aNode [
+GTEPublishingGraphTrait >> removeNode: aNode [
 	self registerRemoveNode: aNode.
 	super removeNode: aNode. 
 	
 ]
 
 { #category : #registering }
-GTEPublicGraphTrait >> transformToDDSType: aDelta [
+GTEPublishingGraphTrait >> transformToDDSType: aDelta [
 	^ aDelta delegateTo: self
 ]

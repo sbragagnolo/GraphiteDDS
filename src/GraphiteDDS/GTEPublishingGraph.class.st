@@ -1,13 +1,13 @@
 Class {
-	#name : #GTEPublicGraph,
+	#name : #GTEPublishingGraph,
 	#superclass : #GTEAdjacencyListGraph,
-	#traits : 'GTEPublicGraphTrait',
-	#classTraits : 'GTEPublicGraphTrait classTrait',
+	#traits : 'GTEPublishingGraphTrait',
+	#classTraits : 'GTEPublishingGraphTrait classTrait',
 	#category : #GraphiteDDS
 }
 
 { #category : #'as yet unclassified' }
-GTEPublicGraph >> deltaOperationAddArcOne: aGTEUnBoundedReference two: aGTEUnBoundedReference2 name: aString [ 
+GTEPublishingGraph >> deltaOperationAddArcOne: aGTEUnBoundedReference two: aGTEUnBoundedReference2 name: aString [ 
 	| delta |
 	delta := GraphArcDelta new.
 	delta 
@@ -20,7 +20,7 @@ GTEPublicGraph >> deltaOperationAddArcOne: aGTEUnBoundedReference two: aGTEUnBou
 ]
 
 { #category : #'as yet unclassified' }
-GTEPublicGraph >> deltaOperationAddNode: aNode reference: aGTEUnBoundedReference [
+GTEPublishingGraph >> deltaOperationAddNode: aNode reference: aGTEUnBoundedReference [
 	| delta |
 	delta := GraphNodeDelta new.
 	delta node
@@ -32,13 +32,13 @@ GTEPublicGraph >> deltaOperationAddNode: aNode reference: aGTEUnBoundedReference
 ]
 
 { #category : #accessing }
-GTEPublicGraph >> initialize [
+GTEPublishingGraph >> initialize [
 	super initialize.
 	self initializeTrait
 ]
 
 { #category : #'class decoration' }
-GTEPublicGraph >> registerRemoveArcsRelatedWith: aNodeRef [
+GTEPublishingGraph >> registerRemoveArcsRelatedWith: aNodeRef [
 	self
 		registerArcDeltaBatches:
 			(arcs

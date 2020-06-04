@@ -50,6 +50,38 @@ GTEApplication >> initialize [
 ]
 
 { #category : #'instance creation' }
+GTEApplication >> newCopyGraphNamed: aGraphName [ 
+	| graph  nodesTopic arcsTopic subscriptions |
+	 
+	nodesTopic := domain
+		findOrRegisterTopicByName: ('{1}/{2}/dnodes' format: {participant name asString . aGraphName})
+		type: 'GraphNodeDeltaBatch'.
+	
+	arcsTopic := domain
+		findOrRegisterTopicByName: ('{1}/{2}/darcs' format: {participant name asString . aGraphName})
+		type: 'GraphArcDeltaBatch'.
+
+
+	graph := GTERemoteGraph new.
+	graph name: aGraphName. 
+	graph nodeSubscription: (
+	nodesTopic subscriber
+		forParticipant: participant
+		onRead: [ :value | graph registerNodes: value ]
+		onFailure: [ :err | self onFailure: err ]).
+		
+	graph arcSubscription: (	
+	arcsTopic subscriber
+		forParticipant: participant
+		onRead: [ :value | graph registerArcs: value ]
+		onFailure: [ :err | self onFailure: err ]).
+		
+		
+		^ graph
+
+]
+
+{ #category : #'instance creation' }
 GTEApplication >> newPublicGraphNamed: aGraphName [ 
 	| graph  nodesTopic arcsTopic |
 	 
@@ -61,7 +93,7 @@ GTEApplication >> newPublicGraphNamed: aGraphName [
 		findOrRegisterTopicByName: ('{1}/{2}/darcs' format: {participant name asString . aGraphName})
 		type: 'GraphArcDeltaBatch'.
 
-	graph := GTEPublicGraph new.
+	graph := GTEPublishingGraph new.
 	graph name: aGraphName. 
 	graph deltaNodePublication:  (nodesTopic publisher publishing: participant).
 	graph deltaArcPublication:  (arcsTopic publisher publishing: participant).
@@ -103,7 +135,8 @@ GTEApplication >> nodeDeltaType [
 
 { #category : #'instance creation' }
 GTEApplication >> onFailure: anError [
-	self halt.
+	self traceCr: 'Error: ', anError messageText.
+	self halt .
 ]
 
 { #category : #'instance creation' }
